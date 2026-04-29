@@ -3,27 +3,414 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diario Amico 💜</title>
+  <title>Diario Amico</title>
+  <meta name="theme-color" content="#8b5cf6">
   <style>
-    body { font-family: sans-serif; background: linear-gradient(135deg, #4a5ab9, #8b5cf6); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: white; }
-    .card { background: rgba(255,255,255,0.12); border-radius: 20px; padding: 25px; width: 100%; max-width: 500px; backdrop-filter: blur(10px); }
-    textarea { width: 100%; min-height: 120px; border-radius: 12px; padding: 14px; margin: 10px 0; }
-    button { padding: 15px; border-radius: 30px; border: none; background: #c084fc; color: white; font-weight: bold; cursor: pointer; width: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4a5ab9, #8b5cf6, #a855a0);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 { font-size: 28px; margin-top: 10px; }
+    .sottotitolo { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
+
+    .card {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 500px;
+      backdrop-filter: blur(10px);
+    }
+
+    .label { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
+    .label-hint { font-size: 12px; opacity: 0.6; font-weight: 400; }
+
+    .emozioni-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .emo-btn {
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 12px 8px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .emo-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+
+    .emo-btn.selected {
+      background: rgba(255,255,255,0.35);
+      border-color: white;
+      transform: scale(1.05);
+    }
+
+    .emo-btn .emoji { font-size: 28px; display: block; margin-bottom: 4px; }
+
+    .emo-btn.auto-detected {
+      background: rgba(255,220,100,0.3);
+      border-color: #ffd700;
+      transform: scale(1.08);
+      animation: glowPulse 1.5s ease-in-out 3;
+    }
+
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+      50% { box-shadow: 0 0 20px rgba(255,215,0,0.6); }
+      100% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+    }
+
+    .auto-detect-msg {
+      text-align: center;
+      font-size: 13px;
+      color: #ffd700;
+      margin-bottom: 15px;
+      min-height: 20px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .auto-detect-msg.visible { opacity: 1; }
+
+    .testo-container { position: relative; margin-bottom: 15px; }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 14px;
+      padding-right: 60px;
+      color: white;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    textarea::placeholder { color: rgba(255,255,255,0.5); }
+    textarea:focus { outline: none; border-color: rgba(255,255,255,0.5); }
+
+    .btn-mic {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(200,150,255,0.5);
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .btn-mic:hover { background: rgba(200,150,255,0.7); transform: scale(1.1); }
+
+    .btn-mic.recording {
+      background: rgba(255,80,80,0.7);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,80,80,0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255,80,80,0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,80,80,0); }
+    }
+
+    .mic-status {
+      text-align: center;
+      font-size: 13px;
+      opacity: 0.7;
+      margin-bottom: 10px;
+      min-height: 20px;
+    }
+
+    .btn-invia {
+      width: 100%;
+      padding: 15px;
+      background: rgba(200,150,255,0.5);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-invia:hover { background: rgba(200,150,255,0.7); transform: scale(1.02); }
+    .btn-invia:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .risposta-box {
+      display: none;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 15px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .risposta-header { font-size: 14px; opacity: 0.8; margin-bottom: 10px; }
+    .risposta-testo { font-size: 15px; line-height: 1.6; }
+
+    .storico-box {
+      display: none;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 15px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .storico-header { font-size: 14px; opacity: 0.7; margin-bottom: 12px; text-align: center; }
+
+    .storico-item {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .storico-item .user-msg { opacity: 0.8; margin-bottom: 6px; }
+    .storico-item .amico-msg { color: #e0d0ff; }
   </style>
 </head>
 <body>
+
   <h1>💜 Diario Amico</h1>
+  <p class="sottotitolo">Il tuo spazio sicuro per raccontarti</p>
+
   <div class="card">
-    <textarea id="testo" placeholder="Raccontami come ti senti..."></textarea>
-    <button id="btnInvia" onclick="invia()">Invia al tuo diario 💌</button>
+    <div class="label">Come ti senti oggi? <span class="label-hint">(opzionale — ci penso io! ✨)</span></div>
+    <div class="emozioni-grid">
+      <div class="emo-btn" data-emozione="felice" onclick="selezionaEmozione(this,'felice')"><span class="emoji">😊</span> Felice</div>
+      <div class="emo-btn" data-emozione="triste" onclick="selezionaEmozione(this,'triste')"><span class="emoji">😢</span> Triste</div>
+      <div class="emo-btn" data-emozione="arrabbiato" onclick="selezionaEmozione(this,'arrabbiato')"><span class="emoji">😡</span> Arrabbiato</div>
+      <div class="emo-btn" data-emozione="ansioso" onclick="selezionaEmozione(this,'ansioso')"><span class="emoji">😰</span> Ansioso</div>
+      <div class="emo-btn" data-emozione="amato" onclick="selezionaEmozione(this,'amato')"><span class="emoji">🥰</span> Amato</div>
+      <div class="emo-btn" data-emozione="così così" onclick="selezionaEmozione(this,'così così')"><span class="emoji">😐</span> Così così</div>
+    </div>
+
+    <div class="auto-detect-msg" id="autoDetectMsg"></div>
+    <div class="label">Raccontami...</div>
+    <div class="mic-status" id="micStatus"></div>
+
+    <div class="testo-container">
+      <textarea id="testo" placeholder="Scrivi o usa il microfono 🎤💜"></textarea>
+      <button class="btn-mic" id="btnMic" onclick="toggleMicrofono()">🎤</button>
+    </div>
+
+    <button class="btn-invia" id="btnInvia" onclick="invia()">Invia al tuo diario 💌</button>
   </div>
+
+  <div class="risposta-box" id="rispostaBox">
+    <div class="risposta-header">💜 Il tuo amico dice:</div>
+    <div class="risposta-testo" id="rispostaTesto"></div>
+  </div>
+
+  <div class="storico-box" id="storicoBox">
+    <div class="storico-header">📖 Le tue conversazioni di oggi</div>
+    <div id="storicoLista"></div>
+  </div>
+
   <script>
-    // Inserisci qui la tua API KEY tra gli apici
-    const API_KEY = 'AIzaSyAZCLwa06qFEiCqoxluAhb9gzAxSdRDxpA';
-    
+    var API_KEY = 'AIzaSyAZCLwa06qFEiCqoxluAhb9gzAxSdRDxpA';
+    var MODELLI = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+    var emozioneSelezionata = '';
+    var conversazioni = [];
+    var riconoscimento = null;
+    var staRegistrando = false;
+
+    function toggleMicrofono() {
+      if (staRegistrando) fermaMicrofono();
+      else avviaMicrofono();
+    }
+
+    function avviaMicrofono() {
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { alert("Browser non supportato. Prova Chrome!"); return; }
+      riconoscimento = new SR();
+      riconoscimento.lang = 'it-IT';
+      riconoscimento.continuous = true;
+      riconoscimento.interimResults = true;
+      var testoFinale = document.getElementById('testo').value;
+
+      riconoscimento.onstart = function() {
+        staRegistrando = true;
+        document.getElementById('btnMic').classList.add('recording');
+        document.getElementById('micStatus').textContent = '🔴 Sto ascoltando... parla pure!';
+      };
+      riconoscimento.onresult = function(event) {
+        var t = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+          t += event.results[i][0].transcript;
+        }
+        document.getElementById('testo').value = testoFinale + t;
+      };
+      riconoscimento.onerror = function(event) {
+        if (event.error === 'not-allowed') alert("Permetti l'accesso al microfono!");
+        fermaMicrofono();
+      };
+      riconoscimento.onend = function() { fermaMicrofono(); };
+      riconoscimento.start();
+    }
+
+    function fermaMicrofono() {
+      if (riconoscimento) riconoscimento.stop();
+      staRegistrando = false;
+      document.getElementById('btnMic').classList.remove('recording');
+      document.getElementById('micStatus').textContent = '';
+    }
+
+    function selezionaEmozione(el, emozione) {
+      document.querySelectorAll('.emo-btn').forEach(function(b) {
+        b.classList.remove('selected');
+        b.classList.remove('auto-detected');
+      });
+      document.getElementById('autoDetectMsg').classList.remove('visible');
+      el.classList.add('selected');
+      emozioneSelezionata = emozione;
+    }
+
+    function evidenziaEmozioneAuto(emozione) {
+      document.querySelectorAll('.emo-btn').forEach(function(b) {
+        b.classList.remove('selected');
+        b.classList.remove('auto-detected');
+      });
+      var trovato = false;
+      document.querySelectorAll('.emo-btn').forEach(function(b) {
+        if (b.getAttribute('data-emozione') === emozione) {
+          b.classList.add('auto-detected');
+          trovato = true;
+        }
+      });
+      var msg = document.getElementById('autoDetectMsg');
+      msg.textContent = trovato ? '✨ Ho capito che ti senti: ' + emozione + '!' : '✨ Mi sembra che ti senta: ' + emozione;
+      msg.classList.add('visible');
+    }
+
+    async function chiamaAPI(modello, istruzioni) {
+      try {
+        var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modello + ':generateContent?key=' + API_KEY;
+        var r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: istruzioni }] }],
+            generationConfig: { temperature: 0.8, maxOutputTokens: 2048 }
+          })
+        });
+        if (!r.ok) return null;
+        var json = await r.json();
+        return json.candidates[0].content.parts[0].text;
+      } catch(e) { return null; }
+    }
+
     async function invia() {
-      const testo = document.getElementById('testo').value;
-      alert("Inviato: " + testo + "\n(Ora l'app è su GitHub, il microfono funzionerà!)");
+      if (staRegistrando) fermaMicrofono();
+      var testo = document.getElementById('testo').value.trim();
+      if (!testo) { alert('Scrivi o registra qualcosa!'); return; }
+
+      var btn = document.getElementById('btnInvia');
+      btn.disabled = true;
+      btn.textContent = !emozioneSelezionata ? '🧠 Capisco come ti senti...' : 'Sto pensando... 💭';
+      document.getElementById('rispostaBox').style.display = 'none';
+      document.getElementById('autoDetectMsg').classList.remove('visible');
+
+      var istruzioni;
+      if (emozioneSelezionata) {
+        istruzioni = "Sei un amico del cuore, empatico e affettuoso. " +
+          "L'utente si sente " + emozioneSelezionata + " e ti dice: \"" + testo + "\"\n\n" +
+          "Rispondi in modo caloroso in 2-3 frasi con emoji.\n\n" +
+          "IMPORTANTE: Rispondi SOLO in JSON:\n" +
+          '{"emozione": "' + emozioneSelezionata + '", "risposta": "la tua risposta"}';
+      } else {
+        istruzioni = "Sei un amico del cuore, empatico e affettuoso. " +
+          "L'utente ti dice: \"" + testo + "\"\n\n" +
+          "1. Rileva l'emozione. Scegli UNA tra: felice, triste, arrabbiato, ansioso, amato, così così\n" +
+          "2. Rispondi in modo caloroso in 2-3 frasi con emoji.\n\n" +
+          "IMPORTANTE: Rispondi SOLO in JSON:\n" +
+          '{"emozione": "parola_scelta", "risposta": "la tua risposta"}';
+      }
+
+      try {
+        var testoRisposta = null;
+        for (var i = 0; i < MODELLI.length; i++) {
+          testoRisposta = await chiamaAPI(MODELLI[i], istruzioni);
+          if (testoRisposta) break;
+        }
+        if (!testoRisposta) throw new Error('Nessun modello');
+
+        testoRisposta = testoRisposta.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+        var dati;
+        try { dati = JSON.parse(testoRisposta); }
+        catch(e) { dati = { emozione: emozioneSelezionata || 'così così', risposta: testoRisposta }; }
+
+        if (!emozioneSelezionata && dati.emozione) evidenziaEmozioneAuto(dati.emozione);
+        mostraRisposta(dati.emozione || 'così così', testo, dati.risposta || testoRisposta);
+      } catch(e) {
+        mostraRisposta(emozioneSelezionata || 'così così', testo, '💜 Sono qui per te. 🤗');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Invia al tuo diario 💌';
+    }
+
+    function mostraRisposta(emozione, testo, risposta) {
+      aggiornaStorico();
+      conversazioni.push({ emozione: emozione, testo: testo, risposta: risposta });
+      document.getElementById('rispostaTesto').textContent = risposta;
+      document.getElementById('rispostaBox').style.display = 'block';
+      document.getElementById('testo').value = '';
+      document.querySelectorAll('.emo-btn').forEach(function(b) {
+        b.classList.remove('selected');
+      });
+      emozioneSelezionata = '';
+      document.getElementById('rispostaBox').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function aggiornaStorico() {
+      var lista = document.getElementById('storicoLista');
+      lista.innerHTML = '';
+      if (conversazioni.length > 0) {
+        document.getElementById('storicoBox').style.display = 'block';
+        conversazioni.forEach(function(c) {
+          var item = document.createElement('div');
+          item.className = 'storico-item';
+          item.innerHTML = '<div class="user-msg">Tu (' + c.emozione + '): ' + c.testo + '</div>' +
+            '<div class="amico-msg">💜 ' + c.risposta + '</div>';
+          lista.appendChild(item);
+        });
+      }
     }
   </script>
 </body>
