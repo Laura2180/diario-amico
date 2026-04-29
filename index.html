@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diario Amico 💜</title>
+  <style>
+    body { font-family: sans-serif; background: linear-gradient(135deg, #4a5ab9, #8b5cf6); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: white; }
+    .card { background: rgba(255,255,255,0.12); border-radius: 20px; padding: 25px; width: 100%; max-width: 500px; backdrop-filter: blur(10px); }
+    textarea { width: 100%; min-height: 120px; border-radius: 12px; padding: 14px; margin: 10px 0; }
+    button { padding: 15px; border-radius: 30px; border: none; background: #c084fc; color: white; font-weight: bold; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>💜 Diario Amico</h1>
+  <div class="card">
+    <textarea id="testo" placeholder="Raccontami come ti senti..."></textarea>
+    <button id="btnInvia" onclick="invia()">Invia al tuo diario 💌</button>
+  </div>
+  <script>
+    // Inserisci qui la tua API KEY tra gli apici
+    const API_KEY = 'AIzaSyAZCLwa06qFEiCqoxluAhb9gzAxSdRDxpA';
+    
+    async function invia() {
+      const testo = document.getElementById('testo').value;
+      alert("Inviato: " + testo + "\n(Ora l'app è su GitHub, il microfono funzionerà!)");
+    }
+  </script>
+</body>
+</html>
