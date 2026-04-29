@@ -242,8 +242,7 @@
   </div>
 
   <script>
-    var API_KEY = 'AIzaSyAZCLwa06qFEiCqoxluAhb9gzAxSdRDxpA';
-    var MODELLI = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+    var WORKER_URL = 'https://diario-amico-api.laurafra8.workers.dev';
     var emozioneSelezionata = '';
     var conversazioni = [];
     var riconoscimento = null;
@@ -317,23 +316,6 @@
       msg.classList.add('visible');
     }
 
-    async function chiamaAPI(modello, istruzioni) {
-      try {
-        var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modello + ':generateContent?key=' + API_KEY;
-        var r = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: istruzioni }] }],
-            generationConfig: { temperature: 0.8, maxOutputTokens: 2048 }
-          })
-        });
-        if (!r.ok) return null;
-        var json = await r.json();
-        return json.candidates[0].content.parts[0].text;
-      } catch(e) { return null; }
-    }
-
     async function invia() {
       if (staRegistrando) fermaMicrofono();
       var testo = document.getElementById('testo').value.trim();
@@ -345,38 +327,30 @@
       document.getElementById('rispostaBox').style.display = 'none';
       document.getElementById('autoDetectMsg').classList.remove('visible');
 
-      var istruzioni;
-      if (emozioneSelezionata) {
-        istruzioni = "Sei un amico del cuore, empatico e affettuoso. " +
-          "L'utente si sente " + emozioneSelezionata + " e ti dice: \"" + testo + "\"\n\n" +
-          "Rispondi in modo caloroso in 2-3 frasi con emoji.\n\n" +
-          "IMPORTANTE: Rispondi SOLO in JSON:\n" +
-          '{"emozione": "' + emozioneSelezionata + '", "risposta": "la tua risposta"}';
-      } else {
-        istruzioni = "Sei un amico del cuore, empatico e affettuoso. " +
-          "L'utente ti dice: \"" + testo + "\"\n\n" +
-          "1. Rileva l'emozione. Scegli UNA tra: felice, triste, arrabbiato, ansioso, amato, così così\n" +
-          "2. Rispondi in modo caloroso in 2-3 frasi con emoji.\n\n" +
-          "IMPORTANTE: Rispondi SOLO in JSON:\n" +
-          '{"emozione": "parola_scelta", "risposta": "la tua risposta"}';
-      }
-
       try {
-        var testoRisposta = null;
-        for (var i = 0; i < MODELLI.length; i++) {
-          testoRisposta = await chiamaAPI(MODELLI[i], istruzioni);
-          if (testoRisposta) break;
+        var r = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messaggio: testo,
+            emozione: emozioneSelezionata
+          })
+        });
+
+        var data = await r.json();
+        var risposta = data.risposta || '💜 Sono qui per te. 🤗';
+
+        if (!emozioneSelezionata) {
+          var emozioni = ['felice', 'triste', 'arrabbiato', 'ansioso', 'amato', 'così così'];
+          for (var i = 0; i < emozioni.length; i++) {
+            if (risposta.toLowerCase().indexOf(emozioni[i]) !== -1) {
+              evidenziaEmozioneAuto(emozioni[i]);
+              break;
+            }
+          }
         }
-        if (!testoRisposta) throw new Error('Nessun modello');
 
-        testoRisposta = testoRisposta.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-        var dati;
-        try { dati = JSON.parse(testoRisposta); }
-        catch(e) { dati = { emozione: emozioneSelezionata || 'così così', risposta: testoRisposta }; }
-
-        if (!emozioneSelezionata && dati.emozione) evidenziaEmozioneAuto(dati.emozione);
-        mostraRisposta(dati.emozione || 'così così', testo, dati.risposta || testoRisposta);
+        mostraRisposta(emozioneSelezionata || 'così così', testo, risposta);
       } catch(e) {
         mostraRisposta(emozioneSelezionata || 'così così', testo, '💜 Sono qui per te. 🤗');
       }
