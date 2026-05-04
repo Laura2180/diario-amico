@@ -2,11 +2,10 @@
 <html lang="it">
 <head>
   <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#7c3aed">
+  <meta name="theme-color" content="#7c3aed">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diario Amico</title>
-  <meta name="theme-color" content="#8b5cf6">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -190,7 +189,33 @@
       max-width: 500px;
     }
 
-    .storico-header { font-size: 14px; opacity: 0.7; margin-bottom: 12px; text-align: center; }
+    .storico-header {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 12px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-cancella {
+      background: rgba(255,100,100,0.3);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-cancella:hover {
+      background: rgba(255,100,100,0.5);
+      transform: scale(1.05);
+    }
 
     .storico-item {
       background: rgba(255,255,255,0.1);
@@ -199,6 +224,12 @@
       margin-bottom: 10px;
       font-size: 13px;
       line-height: 1.5;
+    }
+
+    .storico-item .data-msg {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-bottom: 4px;
     }
 
     .storico-item .user-msg { opacity: 0.8; margin-bottom: 6px; }
@@ -239,16 +270,50 @@
   </div>
 
   <div class="storico-box" id="storicoBox">
-    <div class="storico-header">📖 Le tue conversazioni di oggi</div>
+    <div class="storico-header">
+      <span>📖 Le tue conversazioni</span>
+      <button class="btn-cancella" onclick="cancellaStorico()">🗑️ Cancella</button>
+    </div>
     <div id="storicoLista"></div>
   </div>
 
   <script>
     var WORKER_URL = 'https://diario-amico-api.laurafra8.workers.dev';
     var emozioneSelezionata = '';
-    var conversazioni = [];
     var riconoscimento = null;
     var staRegistrando = false;
+
+    // 💾 CHIAVE per il localStorage
+    var STORAGE_KEY = 'diarioConversazioni';
+
+    // 💾 CARICA le conversazioni salvate (se esistono)
+    var conversazioni = [];
+    try {
+      var datiSalvati = localStorage.getItem(STORAGE_KEY);
+      if (datiSalvati) {
+        conversazioni = JSON.parse(datiSalvati);
+      }
+    } catch(e) {
+      console.error('Errore caricamento storico:', e);
+      conversazioni = [];
+    }
+
+    // 💾 SALVA le conversazioni nel localStorage
+    function salvaConversazioni() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni));
+      } catch(e) {
+        console.error('Errore salvataggio:', e);
+        alert('⚠️ Non riesco a salvare. La memoria potrebbe essere piena!');
+      }
+    }
+
+    // 📖 Mostra subito lo storico all'apertura dell'app
+    window.addEventListener('DOMContentLoaded', function() {
+      if (conversazioni.length > 0) {
+        aggiornaStorico();
+      }
+    });
 
     function toggleMicrofono() {
       if (staRegistrando) fermaMicrofono();
@@ -362,8 +427,19 @@
     }
 
     function mostraRisposta(emozione, testo, risposta) {
+      // 💾 Aggiungi la nuova conversazione CON data e ora
+      conversazioni.push({
+        emozione: emozione,
+        testo: testo,
+        risposta: risposta,
+        data: new Date().toISOString()
+      });
+
+      // 💾 SALVA SUBITO nel localStorage!
+      salvaConversazioni();
+
       aggiornaStorico();
-      conversazioni.push({ emozione: emozione, testo: testo, risposta: risposta });
+
       document.getElementById('rispostaTesto').textContent = risposta;
       document.getElementById('rispostaBox').style.display = 'block';
       document.getElementById('testo').value = '';
@@ -374,25 +450,74 @@
       document.getElementById('rispostaBox').scrollIntoView({ behavior: 'smooth' });
     }
 
+    function formattaData(isoString) {
+      if (!isoString) return '';
+      try {
+        var d = new Date(isoString);
+        var oggi = new Date();
+        var ieri = new Date();
+        ieri.setDate(ieri.getDate() - 1);
+
+        var ore = String(d.getHours()).padStart(2, '0');
+        var minuti = String(d.getMinutes()).padStart(2, '0');
+        var orario = ore + ':' + minuti;
+
+        if (d.toDateString() === oggi.toDateString()) {
+          return '🕐 Oggi alle ' + orario;
+        } else if (d.toDateString() === ieri.toDateString()) {
+          return '🕐 Ieri alle ' + orario;
+        } else {
+          var giorno = String(d.getDate()).padStart(2, '0');
+          var mese = String(d.getMonth() + 1).padStart(2, '0');
+          return '📅 ' + giorno + '/' + mese + ' alle ' + orario;
+        }
+      } catch(e) {
+        return '';
+      }
+    }
+
     function aggiornaStorico() {
       var lista = document.getElementById('storicoLista');
       lista.innerHTML = '';
       if (conversazioni.length > 0) {
         document.getElementById('storicoBox').style.display = 'block';
-        conversazioni.forEach(function(c) {
+        // Mostra le più recenti in alto
+        var ordinate = conversazioni.slice().reverse();
+        ordinate.forEach(function(c) {
           var item = document.createElement('div');
           item.className = 'storico-item';
-          item.innerHTML = '<div class="user-msg">Tu (' + c.emozione + '): ' + c.testo + '</div>' +
+          var dataHTML = c.data ? '<div class="data-msg">' + formattaData(c.data) + '</div>' : '';
+          item.innerHTML =
+            dataHTML +
+            '<div class="user-msg">Tu (' + c.emozione + '): ' + c.testo + '</div>' +
             '<div class="amico-msg">💜 ' + c.risposta + '</div>';
           lista.appendChild(item);
         });
+      } else {
+        document.getElementById('storicoBox').style.display = 'none';
+      }
+    }
+
+    // 🗑️ CANCELLA tutto lo storico
+    function cancellaStorico() {
+      if (conversazioni.length === 0) {
+        alert('Non ci sono conversazioni da cancellare! 💜');
+        return;
+      }
+      if (confirm('Sei sicura di voler cancellare TUTTE le conversazioni? 💜\n\nQuesta azione non si può annullare!')) {
+        conversazioni = [];
+        localStorage.removeItem(STORAGE_KEY);
+        document.getElementById('storicoLista').innerHTML = '';
+        document.getElementById('storicoBox').style.display = 'none';
+        alert('✨ Storico cancellato! Pronta per un nuovo inizio 💜');
       }
     }
   </script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 </body>
 </html>
