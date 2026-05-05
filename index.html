@@ -56,13 +56,7 @@
     }
 
     .emo-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-
-    .emo-btn.selected {
-      background: rgba(255,255,255,0.35);
-      border-color: white;
-      transform: scale(1.05);
-    }
-
+    .emo-btn.selected { background: rgba(255,255,255,0.35); border-color: white; transform: scale(1.05); }
     .emo-btn .emoji { font-size: 28px; display: block; margin-bottom: 4px; }
 
     .emo-btn.auto-detected {
@@ -127,12 +121,7 @@
       transition: all 0.3s;
     }
 
-    .btn-mic:hover { background: rgba(200,150,255,0.7); transform: scale(1.1); }
-
-    .btn-mic.recording {
-      background: rgba(255,80,80,0.7);
-      animation: pulse 1s infinite;
-    }
+    .btn-mic.recording { background: rgba(255,80,80,0.7); animation: pulse 1s infinite; }
 
     @keyframes pulse {
       0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,80,80,0.5); }
@@ -140,13 +129,7 @@
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,80,80,0); }
     }
 
-    .mic-status {
-      text-align: center;
-      font-size: 13px;
-      opacity: 0.7;
-      margin-bottom: 10px;
-      min-height: 20px;
-    }
+    .mic-status { text-align: center; font-size: 13px; opacity: 0.7; margin-bottom: 10px; min-height: 20px; }
 
     .btn-invia {
       width: 100%;
@@ -178,6 +161,7 @@
     .risposta-header { font-size: 14px; opacity: 0.8; margin-bottom: 10px; }
     .risposta-testo { font-size: 15px; line-height: 1.6; }
 
+    /* STORICO E RICERCA */
     .storico-box {
       display: none;
       background: rgba(255,255,255,0.08);
@@ -193,17 +177,12 @@
       font-size: 14px;
       opacity: 0.9;
       margin-bottom: 12px;
-      text-align: center;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
     }
 
-    /* NUOVO STILE RICERCA */
     .search-container {
-      width: 100%;
       margin-bottom: 15px;
       display: flex;
       flex-direction: column;
@@ -220,13 +199,6 @@
       width: 100%;
     }
 
-    .search-input::placeholder { color: rgba(255,255,255,0.4); }
-
-    .search-row {
-      display: flex;
-      gap: 8px;
-    }
-
     .btn-cancella {
       background: rgba(255,100,100,0.3);
       border: 1px solid rgba(255,255,255,0.3);
@@ -235,15 +207,10 @@
       padding: 4px 12px;
       font-size: 11px;
       cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .btn-cancella:hover {
-      background: rgba(255,100,100,0.5);
-      transform: scale(1.05);
     }
 
     .storico-item {
+      position: relative;
       background: rgba(255,255,255,0.1);
       border-radius: 12px;
       padding: 12px;
@@ -252,13 +219,24 @@
       line-height: 1.5;
     }
 
-    .storico-item .data-msg {
-      font-size: 11px;
-      opacity: 0.6;
-      margin-bottom: 4px;
+    /* TASTO ELIMINA SINGOLO */
+    .btn-elimina-singolo {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 5px;
+      transition: color 0.3s;
     }
 
-    .storico-item .user-msg { opacity: 0.8; margin-bottom: 6px; }
+    .btn-elimina-singolo:hover { color: #ff6b6b; }
+
+    .storico-item .data-msg { font-size: 11px; opacity: 0.6; margin-bottom: 4px; }
+    .storico-item .user-msg { opacity: 0.8; margin-bottom: 6px; padding-right: 20px; }
     .storico-item .amico-msg { color: #e0d0ff; }
   </style>
 </head>
@@ -268,7 +246,7 @@
   <p class="sottotitolo">Il tuo spazio sicuro per raccontarti</p>
 
   <div class="card">
-    <div class="label">Come ti senti oggi? <span class="label-hint">(opzionale — ci penso io! ✨)</span></div>
+    <div class="label">Come ti senti oggi? <span class="label-hint">(opzionale)</span></div>
     <div class="emozioni-grid">
       <div class="emo-btn" data-emozione="felice" onclick="selezionaEmozione(this,'felice')"><span class="emoji">😊</span> Felice</div>
       <div class="emo-btn" data-emozione="triste" onclick="selezionaEmozione(this,'triste')"><span class="emoji">😢</span> Triste</div>
@@ -301,10 +279,9 @@
       <button class="btn-cancella" onclick="cancellaStorico()">🗑️ Cancella tutto</button>
     </div>
 
-    <!-- SEZIONE RICERCA -->
     <div class="search-container">
-        <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca parola..." oninput="aggiornaStorico()">
-        <div class="search-row">
+        <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca nelle parole..." oninput="aggiornaStorico()">
+        <div style="display:flex; gap:5px;">
             <input type="date" id="cercaData" class="search-input" oninput="aggiornaStorico()">
             <button class="btn-cancella" style="background:rgba(255,255,255,0.1)" onclick="resetFiltri()">Reset</button>
         </div>
@@ -315,155 +292,21 @@
 
   <script>
     var WORKER_URL = 'https://diario-amico-api.laurafra8.workers.dev';
+    var STORAGE_KEY = 'diarioConversazioni';
     var emozioneSelezionata = '';
     var riconoscimento = null;
     var staRegistrando = false;
-
-    var STORAGE_KEY = 'diarioConversazioni';
     var conversazioni = [];
 
-    // CARICA CON CONTROLLO STABILITÀ
+    // Caricamento iniziale
     try {
-      var datiSalvati = localStorage.getItem(STORAGE_KEY);
-      if (datiSalvati) {
-        conversazioni = JSON.parse(datiSalvati);
-      }
-    } catch(e) {
-      console.error('Errore caricamento storico:', e);
-      conversazioni = [];
-    }
+      var dati = localStorage.getItem(STORAGE_KEY);
+      if (dati) conversazioni = JSON.parse(dati);
+    } catch(e) { console.error(e); }
 
-    function salvaConversazioni() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni));
-      } catch(e) {
-        console.error('Errore salvataggio:', e);
-        alert('⚠️ Memoria piena o errore nel salvataggio!');
-      }
-    }
+    window.addEventListener('DOMContentLoaded', aggiornaStorico);
 
-    window.addEventListener('DOMContentLoaded', function() {
-      aggiornaStorico();
-    });
-
-    function toggleMicrofono() {
-      if (staRegistrando) fermaMicrofono();
-      else avviaMicrofono();
-    }
-
-    function avviaMicrofono() {
-      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { alert("Browser non supportato!"); return; }
-      riconoscimento = new SR();
-      riconoscimento.lang = 'it-IT';
-      riconoscimento.continuous = true;
-      riconoscimento.interimResults = true;
-      var testoFinale = document.getElementById('testo').value;
-
-      riconoscimento.onstart = function() {
-        staRegistrando = true;
-        document.getElementById('btnMic').classList.add('recording');
-        document.getElementById('micStatus').textContent = '🔴 Sto ascoltando... parla pure!';
-      };
-      riconoscimento.onresult = function(event) {
-        var t = '';
-        for (var i = event.resultIndex; i < event.results.length; i++) {
-          t += event.results[i][0].transcript;
-        }
-        document.getElementById('testo').value = testoFinale + t;
-      };
-      riconoscimento.onend = function() { fermaMicrofono(); };
-      riconoscimento.start();
-    }
-
-    function fermaMicrofono() {
-      if (riconoscimento) riconoscimento.stop();
-      staRegistrando = false;
-      document.getElementById('btnMic').classList.remove('recording');
-      document.getElementById('micStatus').textContent = '';
-    }
-
-    function selezionaEmozione(el, emozione) {
-      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected', 'auto-detected'));
-      document.getElementById('autoDetectMsg').classList.remove('visible');
-      el.classList.add('selected');
-      emozioneSelezionata = emozione;
-    }
-
-    function evidenziaEmozioneAuto(emozione) {
-      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected', 'auto-detected'));
-      var trovato = false;
-      document.querySelectorAll('.emo-btn').forEach(b => {
-        if (b.getAttribute('data-emozione') === emozione) {
-          b.classList.add('auto-detected');
-          trovato = true;
-        }
-      });
-      var msg = document.getElementById('autoDetectMsg');
-      msg.textContent = trovato ? '✨ Ti senti: ' + emozione + '!' : '✨ Mi sembra: ' + emozione;
-      msg.classList.add('visible');
-    }
-
-    async function invia() {
-      if (staRegistrando) fermaMicrofono();
-      var testo = document.getElementById('testo').value.trim();
-      if (!testo) { alert('Scrivi qualcosa!'); return; }
-
-      var btn = document.getElementById('btnInvia');
-      btn.disabled = true;
-      btn.textContent = 'Sto pensando... 💭';
-
-      try {
-        var r = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messaggio: testo, emozione: emozioneSelezionata })
-        });
-
-        var data = await r.json();
-        var risposta = data.risposta || '💜 Sono qui per te. 🤗';
-
-        // FILTRO ANTI-ERRORE (Evita di salvare i 503)
-        if (risposta.includes("503") || risposta.includes("UNAVAILABLE") || risposta.includes("high demand")) {
-            alert("Il server è un po' stanco al momento. Riprova tra un istante! 💜");
-        } else {
-            if (!emozioneSelezionata) {
-                var emozioni = ['felice', 'triste', 'arrabbiato', 'ansioso', 'amato', 'così così'];
-                for (var emo of emozioni) {
-                    if (risposta.toLowerCase().includes(emo)) {
-                        evidenziaEmozioneAuto(emo);
-                        break;
-                    }
-                }
-            }
-            mostraRisposta(emozioneSelezionata || 'così così', testo, risposta);
-        }
-      } catch(e) {
-        alert("Errore di connessione. Riprova! 💜");
-      }
-
-      btn.disabled = false;
-      btn.textContent = 'Invia al tuo diario 💌';
-    }
-
-    function mostraRisposta(emozione, testo, risposta) {
-      conversazioni.push({
-        emozione: emozione,
-        testo: testo,
-        risposta: risposta,
-        data: new Date().toISOString()
-      });
-
-      salvaConversazioni();
-      aggiornaStorico();
-
-      document.getElementById('rispostaTesto').textContent = risposta;
-      document.getElementById('rispostaBox').style.display = 'block';
-      document.getElementById('testo').value = '';
-      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected'));
-      emozioneSelezionata = '';
-      document.getElementById('rispostaBox').scrollIntoView({ behavior: 'smooth' });
-    }
+    function salva() { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni)); }
 
     function resetFiltri() {
         document.getElementById('cercaTesto').value = '';
@@ -471,35 +314,37 @@
         aggiornaStorico();
     }
 
+    // ELIMINA SINGOLO MESSAGGIO
+    function eliminaMessaggio(indice) {
+        if(confirm("Vuoi eliminare questo messaggio? 💜")) {
+            conversazioni.splice(indice, 1);
+            salva();
+            aggiornaStorico();
+        }
+    }
+
     function aggiornaStorico() {
       var lista = document.getElementById('storicoLista');
       var query = document.getElementById('cercaTesto').value.toLowerCase();
-      var dataFiltro = document.getElementById('cercaData').value; // Formato YYYY-MM-DD
+      var dataFiltro = document.getElementById('cercaData').value;
       
       lista.innerHTML = '';
-      
       if (conversazioni.length > 0) {
         document.getElementById('storicoBox').style.display = 'block';
         
-        var filtrate = conversazioni.filter(c => {
-            var matchTesto = c.testo.toLowerCase().includes(query) || c.risposta.toLowerCase().includes(query);
-            var matchData = true;
-            if (dataFiltro) {
-                var dataISO = c.data.split('T')[0]; // Prende solo YYYY-MM-DD
-                matchData = (dataISO === dataFiltro);
-            }
-            return matchTesto && matchData;
+        // Mappiamo l'indice originale prima di invertire l'array per la visualizzazione
+        var filtrate = conversazioni.map((c, index) => ({...c, originalIndex: index}))
+        .filter(c => {
+            var mTesto = c.testo.toLowerCase().includes(query) || c.risposta.toLowerCase().includes(query);
+            var mData = dataFiltro ? c.data.split('T')[0] === dataFiltro : true;
+            return mTesto && mData;
         });
 
-        if (filtrate.length === 0) {
-            lista.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">Nessun risultato trovato 🔍</div>';
-            return;
-        }
-
-        filtrate.slice().reverse().forEach(function(c) {
+        filtrate.reverse().forEach(c => {
           var item = document.createElement('div');
           item.className = 'storico-item';
           item.innerHTML = `
+            <button class="btn-elimina-singolo" onclick="eliminaMessaggio(${c.originalIndex})" title="Elimina">✕</button>
             <div class="data-msg">${formattaData(c.data)}</div>
             <div class="user-msg">Tu (${c.emozione}): ${c.testo}</div>
             <div class="amico-msg">💜 ${c.risposta}</div>
@@ -511,30 +356,83 @@
       }
     }
 
-    function formattaData(isoString) {
-      if (!isoString) return '';
-      var d = new Date(isoString);
-      var oggi = new Date();
-      var ieri = new Date();
-      ieri.setDate(ieri.getDate() - 1);
-      var orario = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    async function invia() {
+      var testo = document.getElementById('testo').value.trim();
+      if (!testo) return alert('Scrivi qualcosa!');
 
-      if (d.toDateString() === oggi.toDateString()) return '🕐 Oggi alle ' + orario;
-      if (d.toDateString() === ieri.toDateString()) return '🕐 Ieri alle ' + orario;
+      var btn = document.getElementById('btnInvia');
+      btn.disabled = true;
+      btn.textContent = 'Sto pensando... 💭';
+
+      try {
+        var r = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messaggio: testo, emozione: emozioneSelezionata })
+        });
+        var data = await r.json();
+        var risposta = data.risposta || '💜 Sono qui per te.';
+
+        if (risposta.includes("503") || risposta.includes("UNAVAILABLE")) {
+            alert("Il server è sovraccarico, riprova tra poco! 💜");
+        } else {
+            conversazioni.push({
+                emozione: emozioneSelezionata || 'così così',
+                testo: testo,
+                risposta: risposta,
+                data: new Date().toISOString()
+            });
+            salva();
+            aggiornaStorico();
+            document.getElementById('rispostaTesto').textContent = risposta;
+            document.getElementById('rispostaBox').style.display = 'block';
+            document.getElementById('testo').value = '';
+        }
+      } catch(e) { alert("Errore di connessione 💜"); }
+      btn.disabled = false;
+      btn.textContent = 'Invia al tuo diario 💌';
+    }
+
+    function formattaData(iso) {
+      var d = new Date(iso);
+      var orario = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+      if (d.toDateString() === new Date().toDateString()) return '🕐 Oggi alle ' + orario;
       return '📅 ' + d.toLocaleDateString('it-IT') + ' alle ' + orario;
     }
 
+    function selezionaEmozione(el, emo) {
+        document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        emozioneSelezionata = emo;
+    }
+
     function cancellaStorico() {
-      if (confirm('Vuoi cancellare tutto?')) {
+      if (confirm('Vuoi cancellare tutto lo storico?')) {
         conversazioni = [];
-        localStorage.removeItem(STORAGE_KEY);
+        salva();
         aggiornaStorico();
       }
     }
-  </script>
 
-  <script>
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+    function toggleMicrofono() {
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return alert("Microfono non supportato");
+      if (staRegistrando) { riconoscimento.stop(); staRegistrando = false; return; }
+      riconoscimento = new SR();
+      riconoscimento.lang = 'it-IT';
+      riconoscimento.onstart = () => {
+          staRegistrando = true;
+          document.getElementById('btnMic').classList.add('recording');
+      };
+      riconoscimento.onresult = (e) => {
+          document.getElementById('testo').value += e.results[0][0].transcript;
+      };
+      riconoscimento.onend = () => {
+          staRegistrando = false;
+          document.getElementById('btnMic').classList.remove('recording');
+      };
+      riconoscimento.start();
+    }
   </script>
 </body>
 </html>
