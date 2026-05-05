@@ -33,9 +33,6 @@
       backdrop-filter: blur(10px);
     }
 
-    .label { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
-    .label-hint { font-size: 12px; opacity: 0.6; font-weight: 400; }
-
     .emozioni-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -55,34 +52,7 @@
       transition: all 0.3s;
     }
 
-    .emo-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-    .emo-btn.selected { background: rgba(255,255,255,0.35); border-color: white; transform: scale(1.05); }
-    .emo-btn .emoji { font-size: 28px; display: block; margin-bottom: 4px; }
-
-    .emo-btn.auto-detected {
-      background: rgba(255,220,100,0.3);
-      border-color: #ffd700;
-      transform: scale(1.08);
-      animation: glowPulse 1.5s ease-in-out 3;
-    }
-
-    @keyframes glowPulse {
-      0% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
-      50% { box-shadow: 0 0 20px rgba(255,215,0,0.6); }
-      100% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
-    }
-
-    .auto-detect-msg {
-      text-align: center;
-      font-size: 13px;
-      color: #ffd700;
-      margin-bottom: 15px;
-      min-height: 20px;
-      opacity: 0;
-      transition: opacity 0.5s;
-    }
-
-    .auto-detect-msg.visible { opacity: 1; }
+    .emo-btn.selected { background: rgba(255,255,255,0.35); border-color: white; }
 
     .testo-container { position: relative; margin-bottom: 15px; }
 
@@ -93,73 +63,48 @@
       border: 1px solid rgba(255,255,255,0.25);
       border-radius: 12px;
       padding: 14px;
-      padding-right: 60px;
       color: white;
       font-size: 15px;
-      font-family: inherit;
       resize: vertical;
     }
 
-    textarea::placeholder { color: rgba(255,255,255,0.5); }
-    textarea:focus { outline: none; border-color: rgba(255,255,255,0.5); }
-
-    .btn-mic {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(200,150,255,0.5);
-      color: white;
-      font-size: 22px;
-      cursor: pointer;
+    /* NUOVO STILE TASTO IMMAGINE */
+    .img-upload-container {
+      margin-bottom: 15px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
+      gap: 10px;
     }
 
-    .btn-mic.recording { background: rgba(255,80,80,0.7); animation: pulse 1s infinite; }
-
-    @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,80,80,0.5); }
-      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255,80,80,0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,80,80,0); }
+    .btn-img {
+      background: rgba(255,255,255,0.2);
+      border: 1px dashed rgba(255,255,255,0.4);
+      padding: 8px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      color: white;
     }
 
-    .mic-status { text-align: center; font-size: 13px; opacity: 0.7; margin-bottom: 10px; min-height: 20px; }
+    #previewImg {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 10px;
+      display: none;
+      border: 2px solid white;
+    }
 
     .btn-invia {
       width: 100%;
       padding: 15px;
-      background: rgba(200,150,255,0.5);
+      background: rgba(200,150,255,0.6);
       border: none;
       border-radius: 30px;
       color: white;
       font-size: 17px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s;
     }
-
-    .btn-invia:hover { background: rgba(200,150,255,0.7); transform: scale(1.02); }
-    .btn-invia:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .risposta-box {
-      display: none;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 15px;
-      width: 100%;
-      max-width: 500px;
-    }
-
-    .risposta-header { font-size: 14px; opacity: 0.8; margin-bottom: 10px; }
-    .risposta-testo { font-size: 15px; line-height: 1.6; }
 
     /* STORICO E RICERCA */
     .storico-box {
@@ -171,15 +116,6 @@
       margin-top: 15px;
       width: 100%;
       max-width: 500px;
-    }
-
-    .storico-header {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
     }
 
     .search-container {
@@ -196,15 +132,14 @@
       padding: 8px 12px;
       color: white;
       font-size: 13px;
-      width: 100%;
     }
 
-    .btn-cancella {
-      background: rgba(255,100,100,0.3);
-      border: 1px solid rgba(255,255,255,0.3);
+    .btn-azione {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
       color: white;
       border-radius: 20px;
-      padding: 4px 12px;
+      padding: 5px 12px;
       font-size: 11px;
       cursor: pointer;
     }
@@ -216,10 +151,15 @@
       padding: 12px;
       margin-bottom: 10px;
       font-size: 13px;
-      line-height: 1.5;
     }
 
-    /* TASTO ELIMINA SINGOLO */
+    .msg-img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 8px 0;
+      display: block;
+    }
+
     .btn-elimina-singolo {
       position: absolute;
       top: 8px;
@@ -228,63 +168,60 @@
       border: none;
       color: rgba(255,255,255,0.3);
       cursor: pointer;
-      font-size: 14px;
-      padding: 5px;
-      transition: color 0.3s;
     }
 
-    .btn-elimina-singolo:hover { color: #ff6b6b; }
-
-    .storico-item .data-msg { font-size: 11px; opacity: 0.6; margin-bottom: 4px; }
-    .storico-item .user-msg { opacity: 0.8; margin-bottom: 6px; padding-right: 20px; }
-    .storico-item .amico-msg { color: #e0d0ff; }
+    @media print {
+      body { background: white !important; color: black !important; }
+      .card, .search-container, .btn-azione, .btn-elimina-singolo, .risposta-box, .btn-invia, .img-upload-container { display: none !important; }
+      .storico-box { display: block !important; border: none !important; background: none !important; width: 100% !important; }
+      .storico-item { background: none !important; border-bottom: 1px solid #ddd !important; color: black !important; page-break-inside: avoid; }
+      .msg-img { max-width: 200px !important; }
+    }
   </style>
 </head>
 <body>
 
   <h1>💜 Diario Amico</h1>
-  <p class="sottotitolo">Il tuo spazio sicuro per raccontarti</p>
+  <p class="sottotitolo">Il tuo spazio multimediale</p>
 
   <div class="card">
-    <div class="label">Come ti senti oggi? <span class="label-hint">(opzionale)</span></div>
     <div class="emozioni-grid">
-      <div class="emo-btn" data-emozione="felice" onclick="selezionaEmozione(this,'felice')"><span class="emoji">😊</span> Felice</div>
-      <div class="emo-btn" data-emozione="triste" onclick="selezionaEmozione(this,'triste')"><span class="emoji">😢</span> Triste</div>
-      <div class="emo-btn" data-emozione="arrabbiato" onclick="selezionaEmozione(this,'arrabbiato')"><span class="emoji">😡</span> Arrabbiato</div>
-      <div class="emo-btn" data-emozione="ansioso" onclick="selezionaEmozione(this,'ansioso')"><span class="emoji">😰</span> Ansioso</div>
-      <div class="emo-btn" data-emozione="amato" onclick="selezionaEmozione(this,'amato')"><span class="emoji">🥰</span> Amato</div>
-      <div class="emo-btn" data-emozione="così così" onclick="selezionaEmozione(this,'così così')"><span class="emoji">😐</span> Così così</div>
+      <div class="emo-btn" onclick="selezionaEmozione(this,'felice')">😊 Felice</div>
+      <div class="emo-btn" onclick="selezionaEmozione(this,'triste')">😢 Triste</div>
+      <div class="emo-btn" onclick="selezionaEmozione(this,'ansioso')">😰 Ansioso</div>
     </div>
 
-    <div class="auto-detect-msg" id="autoDetectMsg"></div>
-    <div class="label">Raccontami...</div>
-    <div class="mic-status" id="micStatus"></div>
-
     <div class="testo-container">
-      <textarea id="testo" placeholder="Scrivi o usa il microfono 🎤💜"></textarea>
-      <button class="btn-mic" id="btnMic" onclick="toggleMicrofono()">🎤</button>
+      <textarea id="testo" placeholder="Raccontami la tua giornata..."></textarea>
+    </div>
+
+    <!-- AREA UPLOAD IMMAGINE -->
+    <div class="img-upload-container">
+      <label for="inputImg" class="btn-img">📷 Aggiungi Foto</label>
+      <input type="file" id="inputImg" accept="image/*" style="display:none" onchange="previewFile()">
+      <img src="" id="previewImg" alt="Anteprima">
+      <button id="removeImg" style="display:none; background:none; border:none; color:white; cursor:pointer;" onclick="clearImg()">✕</button>
     </div>
 
     <button class="btn-invia" id="btnInvia" onclick="invia()">Invia al tuo diario 💌</button>
   </div>
 
-  <div class="risposta-box" id="rispostaBox">
-    <div class="risposta-header">💜 Il tuo amico dice:</div>
-    <div class="risposta-testo" id="rispostaTesto"></div>
+  <div class="risposta-box" id="rispostaBox" style="display:none; padding: 20px; background: rgba(255,255,255,0.1); border-radius:15px; margin-top:10px; width:100%; max-width:500px;">
+    <div id="rispostaTesto"></div>
   </div>
 
   <div class="storico-box" id="storicoBox">
-    <div class="storico-header">
-      <span>📖 Le tue conversazioni</span>
-      <button class="btn-cancella" onclick="cancellaStorico()">🗑️ Cancella tutto</button>
+    <div class="storico-header" style="display:flex; justify-content:space-between; margin-bottom:15px;">
+      <span>📖 Ricordi</span>
+      <div>
+        <button class="btn-azione" onclick="stampaDiario()">🖨️ Stampa</button>
+        <button class="btn-azione" style="background:rgba(255,100,100,0.3)" onclick="cancellaStorico()">🗑️ Reset</button>
+      </div>
     </div>
 
     <div class="search-container">
-        <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca nelle parole..." oninput="aggiornaStorico()">
-        <div style="display:flex; gap:5px;">
-            <input type="date" id="cercaData" class="search-input" oninput="aggiornaStorico()">
-            <button class="btn-cancella" style="background:rgba(255,255,255,0.1)" onclick="resetFiltri()">Reset</button>
-        </div>
+        <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca parola..." oninput="aggiornaStorico()">
+        <input type="date" id="cercaData" class="search-input" oninput="aggiornaStorico()">
     </div>
 
     <div id="storicoLista"></div>
@@ -293,111 +230,30 @@
   <script>
     var WORKER_URL = 'https://diario-amico-api.laurafra8.workers.dev';
     var STORAGE_KEY = 'diarioConversazioni';
-    var emozioneSelezionata = '';
-    var riconoscimento = null;
-    var staRegistrando = false;
-    var conversazioni = [];
+    var emozioneSelezionata = 'così così';
+    var imgBase64 = ""; // Variabile per contenere l'immagine
+    var conversazioni = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
-    // Caricamento iniziale
-    try {
-      var dati = localStorage.getItem(STORAGE_KEY);
-      if (dati) conversazioni = JSON.parse(dati);
-    } catch(e) { console.error(e); }
+    window.onload = aggiornaStorico;
 
-    window.addEventListener('DOMContentLoaded', aggiornaStorico);
-
-    function salva() { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni)); }
-
-    function resetFiltri() {
-        document.getElementById('cercaTesto').value = '';
-        document.getElementById('cercaData').value = '';
-        aggiornaStorico();
-    }
-
-    // ELIMINA SINGOLO MESSAGGIO
-    function eliminaMessaggio(indice) {
-        if(confirm("Vuoi eliminare questo messaggio? 💜")) {
-            conversazioni.splice(indice, 1);
-            salva();
-            aggiornaStorico();
+    // Gestione Anteprima Immagine
+    function previewFile() {
+        var file = document.querySelector('input[type=file]').files[0];
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            imgBase64 = reader.result;
+            document.getElementById('previewImg').src = imgBase64;
+            document.getElementById('previewImg').style.display = 'block';
+            document.getElementById('removeImg').style.display = 'inline';
         }
+        if (file) { reader.readAsDataURL(file); }
     }
 
-    function aggiornaStorico() {
-      var lista = document.getElementById('storicoLista');
-      var query = document.getElementById('cercaTesto').value.toLowerCase();
-      var dataFiltro = document.getElementById('cercaData').value;
-      
-      lista.innerHTML = '';
-      if (conversazioni.length > 0) {
-        document.getElementById('storicoBox').style.display = 'block';
-        
-        // Mappiamo l'indice originale prima di invertire l'array per la visualizzazione
-        var filtrate = conversazioni.map((c, index) => ({...c, originalIndex: index}))
-        .filter(c => {
-            var mTesto = c.testo.toLowerCase().includes(query) || c.risposta.toLowerCase().includes(query);
-            var mData = dataFiltro ? c.data.split('T')[0] === dataFiltro : true;
-            return mTesto && mData;
-        });
-
-        filtrate.reverse().forEach(c => {
-          var item = document.createElement('div');
-          item.className = 'storico-item';
-          item.innerHTML = `
-            <button class="btn-elimina-singolo" onclick="eliminaMessaggio(${c.originalIndex})" title="Elimina">✕</button>
-            <div class="data-msg">${formattaData(c.data)}</div>
-            <div class="user-msg">Tu (${c.emozione}): ${c.testo}</div>
-            <div class="amico-msg">💜 ${c.risposta}</div>
-          `;
-          lista.appendChild(item);
-        });
-      } else {
-        document.getElementById('storicoBox').style.display = 'none';
-      }
-    }
-
-    async function invia() {
-      var testo = document.getElementById('testo').value.trim();
-      if (!testo) return alert('Scrivi qualcosa!');
-
-      var btn = document.getElementById('btnInvia');
-      btn.disabled = true;
-      btn.textContent = 'Sto pensando... 💭';
-
-      try {
-        var r = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messaggio: testo, emozione: emozioneSelezionata })
-        });
-        var data = await r.json();
-        var risposta = data.risposta || '💜 Sono qui per te.';
-
-        if (risposta.includes("503") || risposta.includes("UNAVAILABLE")) {
-            alert("Il server è sovraccarico, riprova tra poco! 💜");
-        } else {
-            conversazioni.push({
-                emozione: emozioneSelezionata || 'così così',
-                testo: testo,
-                risposta: risposta,
-                data: new Date().toISOString()
-            });
-            salva();
-            aggiornaStorico();
-            document.getElementById('rispostaTesto').textContent = risposta;
-            document.getElementById('rispostaBox').style.display = 'block';
-            document.getElementById('testo').value = '';
-        }
-      } catch(e) { alert("Errore di connessione 💜"); }
-      btn.disabled = false;
-      btn.textContent = 'Invia al tuo diario 💌';
-    }
-
-    function formattaData(iso) {
-      var d = new Date(iso);
-      var orario = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
-      if (d.toDateString() === new Date().toDateString()) return '🕐 Oggi alle ' + orario;
-      return '📅 ' + d.toLocaleDateString('it-IT') + ' alle ' + orario;
+    function clearImg() {
+        imgBase64 = "";
+        document.getElementById('inputImg').value = "";
+        document.getElementById('previewImg').style.display = 'none';
+        document.getElementById('removeImg').style.display = 'none';
     }
 
     function selezionaEmozione(el, emo) {
@@ -406,32 +262,85 @@
         emozioneSelezionata = emo;
     }
 
-    function cancellaStorico() {
-      if (confirm('Vuoi cancellare tutto lo storico?')) {
-        conversazioni = [];
-        salva();
-        aggiornaStorico();
-      }
+    function stampaDiario() { window.print(); }
+
+    function eliminaMessaggio(index) {
+        if(confirm("Eliminare questo ricordo? 💜")) {
+            conversazioni.splice(index, 1);
+            salvaEAggiorna();
+        }
     }
 
-    function toggleMicrofono() {
-      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return alert("Microfono non supportato");
-      if (staRegistrando) { riconoscimento.stop(); staRegistrando = false; return; }
-      riconoscimento = new SR();
-      riconoscimento.lang = 'it-IT';
-      riconoscimento.onstart = () => {
-          staRegistrando = true;
-          document.getElementById('btnMic').classList.add('recording');
-      };
-      riconoscimento.onresult = (e) => {
-          document.getElementById('testo').value += e.results[0][0].transcript;
-      };
-      riconoscimento.onend = () => {
-          staRegistrando = false;
-          document.getElementById('btnMic').classList.remove('recording');
-      };
-      riconoscimento.start();
+    function salvaEAggiorna() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni));
+        aggiornaStorico();
+    }
+
+    async function invia() {
+        var t = document.getElementById('testo').value.trim();
+        if(!t && !imgBase64) return alert("Scrivi qualcosa o aggiungi una foto! 💜");
+        
+        document.getElementById('btnInvia').textContent = "💭 Salvataggio...";
+        
+        try {
+            var r = await fetch(WORKER_URL, {
+                method: 'POST',
+                body: JSON.stringify({ messaggio: t, emozione: emozioneSelezionata })
+            });
+            var d = await r.json();
+            var risp = d.risposta || "💜 Sono qui.";
+
+            if(!risp.includes("503")) {
+                conversazioni.push({
+                    testo: t, risposta: risp, emozione: emozioneSelezionata, 
+                    data: new Date().toISOString(), immagine: imgBase64
+                });
+                salvaEAggiorna();
+                document.getElementById('rispostaTesto').textContent = risp;
+                document.getElementById('rispostaBox').style.display = 'block';
+                document.getElementById('testo').value = '';
+                clearImg();
+            } else {
+                alert("Server occupato, ma il tuo pensiero è salvo. Riprova tra poco! 💜");
+            }
+        } catch(e) { alert("Errore di connessione 💜"); }
+        document.getElementById('btnInvia').textContent = "Invia al tuo diario 💌";
+    }
+
+    function aggiornaStorico() {
+        var lista = document.getElementById('storicoLista');
+        var q = document.getElementById('cercaTesto').value.toLowerCase();
+        var dF = document.getElementById('cercaData').value;
+        lista.innerHTML = '';
+
+        if(conversazioni.length > 0) {
+            document.getElementById('storicoBox').style.display = 'block';
+            conversazioni.map((c, i) => ({...c, id: i}))
+            .filter(c => {
+                var mText = c.testo.toLowerCase().includes(q) || c.risposta.toLowerCase().includes(q);
+                var mDate = dF ? c.data.startsWith(dF) : true;
+                return mText && mDate;
+            }).reverse().forEach(c => {
+                var div = document.createElement('div');
+                div.className = 'storico-item';
+                var dt = new Date(c.data).toLocaleString('it-IT', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+                var imgHtml = c.immagine ? `<img src="${c.immagine}" class="msg-img">` : '';
+                
+                div.innerHTML = `<button class="btn-elimina-singolo" onclick="eliminaMessaggio(${c.id})">✕</button>
+                                 <div style="font-size:10px; opacity:0.5">${dt}</div>
+                                 ${imgHtml}
+                                 <div><b>Tu:</b> ${c.testo}</div>
+                                 <div class="amico-msg"><b>Amico:</b> ${c.risposta}</div>`;
+                lista.appendChild(div);
+            });
+        }
+    }
+
+    function cancellaStorico() {
+        if(confirm("Vuoi svuotare tutto il diario?")) {
+            conversazioni = [];
+            salvaEAggiorna();
+        }
     }
   </script>
 </body>
