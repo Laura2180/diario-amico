@@ -1,13 +1,26 @@
 {
   "name": "Diario Amico",
-  "short_name": "Diario",
+  "short_name": "Diario Amico",
+  "description": "Il tuo spazio sicuro e multimediale per raccontarti.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#7c3aed",
   "theme_color": "#7c3aed",
+  "orientation": "portrait",
   "version": "1.1.0",
   "id": "io.github.laura2180.twa",
   "icons": [
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
