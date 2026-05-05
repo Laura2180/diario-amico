@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#7c3aed">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="manifest" href="/diario-amico/manifest.json">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
   <title>Diario Amico</title>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -52,9 +56,15 @@
       transition: all 0.3s;
     }
 
-    .emo-btn.selected { background: rgba(255,255,255,0.35); border-color: white; }
+    .emo-btn.selected {
+      background: rgba(255,255,255,0.35);
+      border-color: white;
+    }
 
-    .testo-container { position: relative; margin-bottom: 15px; }
+    .testo-container {
+      position: relative;
+      margin-bottom: 15px;
+    }
 
     textarea {
       width: 100%;
@@ -68,7 +78,6 @@
       resize: vertical;
     }
 
-    /* NUOVO STILE TASTO IMMAGINE */
     .img-upload-container {
       margin-bottom: 15px;
       display: flex;
@@ -106,7 +115,6 @@
       cursor: pointer;
     }
 
-    /* STORICO E RICERCA */
     .storico-box {
       display: none;
       background: rgba(255,255,255,0.08);
@@ -126,8 +134,8 @@
     }
 
     .search-input {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 10px;
       padding: 8px 12px;
       color: white;
@@ -171,14 +179,42 @@
     }
 
     @media print {
-      body { background: white !important; color: black !important; }
-      .card, .search-container, .btn-azione, .btn-elimina-singolo, .risposta-box, .btn-invia, .img-upload-container { display: none !important; }
-      .storico-box { display: block !important; border: none !important; background: none !important; width: 100% !important; }
-      .storico-item { background: none !important; border-bottom: 1px solid #ddd !important; color: black !important; page-break-inside: avoid; }
-      .msg-img { max-width: 200px !important; }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+
+      .card,
+      .search-container,
+      .btn-azione,
+      .btn-elimina-singolo,
+      .risposta-box,
+      .btn-invia,
+      .img-upload-container {
+        display: none !important;
+      }
+
+      .storico-box {
+        display: block !important;
+        border: none !important;
+        background: none !important;
+        width: 100% !important;
+      }
+
+      .storico-item {
+        background: none !important;
+        border-bottom: 1px solid #ddd !important;
+        color: black !important;
+        page-break-inside: avoid;
+      }
+
+      .msg-img {
+        max-width: 200px !important;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <h1>💜 Diario Amico</h1>
@@ -195,7 +231,6 @@
       <textarea id="testo" placeholder="Raccontami la tua giornata..."></textarea>
     </div>
 
-    <!-- AREA UPLOAD IMMAGINE -->
     <div class="img-upload-container">
       <label for="inputImg" class="btn-img">📷 Aggiungi Foto</label>
       <input type="file" id="inputImg" accept="image/*" style="display:none" onchange="previewFile()">
@@ -206,7 +241,7 @@
     <button class="btn-invia" id="btnInvia" onclick="invia()">Invia al tuo diario 💌</button>
   </div>
 
-  <div class="risposta-box" id="rispostaBox" style="display:none; padding: 20px; background: rgba(255,255,255,0.1); border-radius:15px; margin-top:10px; width:100%; max-width:500px;">
+  <div class="risposta-box" id="rispostaBox" style="display:none; padding:20px; background:rgba(255,255,255,0.1); border-radius:15px; margin-top:10px; width:100%; max-width:500px;">
     <div id="rispostaTesto"></div>
   </div>
 
@@ -220,8 +255,8 @@
     </div>
 
     <div class="search-container">
-        <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca parola..." oninput="aggiornaStorico()">
-        <input type="date" id="cercaData" class="search-input" oninput="aggiornaStorico()">
+      <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca parola..." oninput="aggiornaStorico()">
+      <input type="date" id="cercaData" class="search-input" oninput="aggiornaStorico()">
     </div>
 
     <div id="storicoLista"></div>
@@ -231,117 +266,161 @@
     var WORKER_URL = 'https://diario-amico-api.laurafra8.workers.dev';
     var STORAGE_KEY = 'diarioConversazioni';
     var emozioneSelezionata = 'così così';
-    var imgBase64 = ""; // Variabile per contenere l'immagine
+    var imgBase64 = "";
     var conversazioni = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
     window.onload = aggiornaStorico;
 
-    // Gestione Anteprima Immagine
     function previewFile() {
-        var file = document.querySelector('input[type=file]').files[0];
-        var reader = new FileReader();
-        reader.onloadend = function () {
-            imgBase64 = reader.result;
-            document.getElementById('previewImg').src = imgBase64;
-            document.getElementById('previewImg').style.display = 'block';
-            document.getElementById('removeImg').style.display = 'inline';
-        }
-        if (file) { reader.readAsDataURL(file); }
+      var file = document.querySelector('input[type=file]').files[0];
+      var reader = new FileReader();
+
+      reader.onloadend = function () {
+        imgBase64 = reader.result;
+        document.getElementById('previewImg').src = imgBase64;
+        document.getElementById('previewImg').style.display = 'block';
+        document.getElementById('removeImg').style.display = 'inline';
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      }
     }
 
     function clearImg() {
-        imgBase64 = "";
-        document.getElementById('inputImg').value = "";
-        document.getElementById('previewImg').style.display = 'none';
-        document.getElementById('removeImg').style.display = 'none';
+      imgBase64 = "";
+      document.getElementById('inputImg').value = "";
+      document.getElementById('previewImg').style.display = 'none';
+      document.getElementById('removeImg').style.display = 'none';
     }
 
     function selezionaEmozione(el, emo) {
-        document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected'));
-        el.classList.add('selected');
-        emozioneSelezionata = emo;
+      document.querySelectorAll('.emo-btn').forEach(function(b) {
+        b.classList.remove('selected');
+      });
+
+      el.classList.add('selected');
+      emozioneSelezionata = emo;
     }
 
-    function stampaDiario() { window.print(); }
+    function stampaDiario() {
+      window.print();
+    }
 
     function eliminaMessaggio(index) {
-        if(confirm("Eliminare questo ricordo? 💜")) {
-            conversazioni.splice(index, 1);
-            salvaEAggiorna();
-        }
+      if (confirm("Eliminare questo ricordo? 💜")) {
+        conversazioni.splice(index, 1);
+        salvaEAggiorna();
+      }
     }
 
     function salvaEAggiorna() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni));
-        aggiornaStorico();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni));
+      aggiornaStorico();
     }
 
     async function invia() {
-        var t = document.getElementById('testo').value.trim();
-        if(!t && !imgBase64) return alert("Scrivi qualcosa o aggiungi una foto! 💜");
-        
-        document.getElementById('btnInvia').textContent = "💭 Salvataggio...";
-        
-        try {
-            var r = await fetch(WORKER_URL, {
-                method: 'POST',
-                body: JSON.stringify({ messaggio: t, emozione: emozioneSelezionata })
-            });
-            var d = await r.json();
-            var risp = d.risposta || "💜 Sono qui.";
+      var t = document.getElementById('testo').value.trim();
 
-            if(!risp.includes("503")) {
-                conversazioni.push({
-                    testo: t, risposta: risp, emozione: emozioneSelezionata, 
-                    data: new Date().toISOString(), immagine: imgBase64
-                });
-                salvaEAggiorna();
-                document.getElementById('rispostaTesto').textContent = risp;
-                document.getElementById('rispostaBox').style.display = 'block';
-                document.getElementById('testo').value = '';
-                clearImg();
-            } else {
-                alert("Server occupato, ma il tuo pensiero è salvo. Riprova tra poco! 💜");
-            }
-        } catch(e) { alert("Errore di connessione 💜"); }
-        document.getElementById('btnInvia').textContent = "Invia al tuo diario 💌";
+      if (!t && !imgBase64) {
+        alert("Scrivi qualcosa o aggiungi una foto! 💜");
+        return;
+      }
+
+      document.getElementById('btnInvia').textContent = "💭 Salvataggio...";
+
+      try {
+        var r = await fetch(WORKER_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            messaggio: t,
+            emozione: emozioneSelezionata
+          })
+        });
+
+        var d = await r.json();
+        var risp = d.risposta || "💜 Sono qui.";
+
+        if (!risp.includes("503")) {
+          conversazioni.push({
+            testo: t,
+            risposta: risp,
+            emozione: emozioneSelezionata,
+            data: new Date().toISOString(),
+            immagine: imgBase64
+          });
+
+          salvaEAggiorna();
+
+          document.getElementById('rispostaTesto').textContent = risp;
+          document.getElementById('rispostaBox').style.display = 'block';
+          document.getElementById('testo').value = '';
+
+          clearImg();
+        } else {
+          alert("Server occupato, ma il tuo pensiero è salvo. Riprova tra poco! 💜");
+        }
+
+      } catch (e) {
+        alert("Errore di connessione 💜");
+      }
+
+      document.getElementById('btnInvia').textContent = "Invia al tuo diario 💌";
     }
 
     function aggiornaStorico() {
-        var lista = document.getElementById('storicoLista');
-        var q = document.getElementById('cercaTesto').value.toLowerCase();
-        var dF = document.getElementById('cercaData').value;
-        lista.innerHTML = '';
+      var lista = document.getElementById('storicoLista');
+      var q = document.getElementById('cercaTesto').value.toLowerCase();
+      var dF = document.getElementById('cercaData').value;
 
-        if(conversazioni.length > 0) {
-            document.getElementById('storicoBox').style.display = 'block';
-            conversazioni.map((c, i) => ({...c, id: i}))
-            .filter(c => {
-                var mText = c.testo.toLowerCase().includes(q) || c.risposta.toLowerCase().includes(q);
-                var mDate = dF ? c.data.startsWith(dF) : true;
-                return mText && mDate;
-            }).reverse().forEach(c => {
-                var div = document.createElement('div');
-                div.className = 'storico-item';
-                var dt = new Date(c.data).toLocaleString('it-IT', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
-                var imgHtml = c.immagine ? `<img src="${c.immagine}" class="msg-img">` : '';
-                
-                div.innerHTML = `<button class="btn-elimina-singolo" onclick="eliminaMessaggio(${c.id})">✕</button>
-                                 <div style="font-size:10px; opacity:0.5">${dt}</div>
-                                 ${imgHtml}
-                                 <div><b>Tu:</b> ${c.testo}</div>
-                                 <div class="amico-msg"><b>Amico:</b> ${c.risposta}</div>`;
-                lista.appendChild(div);
+      lista.innerHTML = '';
+
+      if (conversazioni.length > 0) {
+        document.getElementById('storicoBox').style.display = 'block';
+
+        conversazioni
+          .map(function(c, i) {
+            c.id = i;
+            return c;
+          })
+          .filter(function(c) {
+            var mText = c.testo.toLowerCase().includes(q) || c.risposta.toLowerCase().includes(q);
+            var mDate = dF ? c.data.startsWith(dF) : true;
+            return mText && mDate;
+          })
+          .reverse()
+          .forEach(function(c) {
+            var div = document.createElement('div');
+            div.className = 'storico-item';
+
+            var dt = new Date(c.data).toLocaleString('it-IT', {
+              day: '2-digit',
+              month: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
             });
-        }
+
+            var imgHtml = c.immagine ? '<img src="' + c.immagine + '" class="msg-img">' : '';
+
+            div.innerHTML =
+              '<button class="btn-elimina-singolo" onclick="eliminaMessaggio(' + c.id + ')">✕</button>' +
+              '<div style="font-size:10px; opacity:0.5">' + dt + '</div>' +
+              imgHtml +
+              '<div><b>Tu:</b> ' + c.testo + '</div>' +
+              '<div><b>Amico:</b> ' + c.risposta + '</div>';
+
+            lista.appendChild(div);
+          });
+      }
     }
 
     function cancellaStorico() {
-        if(confirm("Vuoi svuotare tutto il diario?")) {
-            conversazioni = [];
-            salvaEAggiorna();
-        }
+      if (confirm("Vuoi svuotare tutto il diario?")) {
+        conversazioni = [];
+        salvaEAggiorna();
+      }
     }
   </script>
+
 </body>
 </html>
