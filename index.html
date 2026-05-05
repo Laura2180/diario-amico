@@ -196,9 +196,35 @@
       text-align: center;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    /* NUOVO STILE RICERCA */
+    .search-container {
+      width: 100%;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .search-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: white;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .search-input::placeholder { color: rgba(255,255,255,0.4); }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
     }
 
     .btn-cancella {
@@ -272,8 +298,18 @@
   <div class="storico-box" id="storicoBox">
     <div class="storico-header">
       <span>📖 Le tue conversazioni</span>
-      <button class="btn-cancella" onclick="cancellaStorico()">🗑️ Cancella</button>
+      <button class="btn-cancella" onclick="cancellaStorico()">🗑️ Cancella tutto</button>
     </div>
+
+    <!-- SEZIONE RICERCA -->
+    <div class="search-container">
+        <input type="text" id="cercaTesto" class="search-input" placeholder="🔍 Cerca parola..." oninput="aggiornaStorico()">
+        <div class="search-row">
+            <input type="date" id="cercaData" class="search-input" oninput="aggiornaStorico()">
+            <button class="btn-cancella" style="background:rgba(255,255,255,0.1)" onclick="resetFiltri()">Reset</button>
+        </div>
+    </div>
+
     <div id="storicoLista"></div>
   </div>
 
@@ -283,11 +319,10 @@
     var riconoscimento = null;
     var staRegistrando = false;
 
-    // 💾 CHIAVE per il localStorage
     var STORAGE_KEY = 'diarioConversazioni';
-
-    // 💾 CARICA le conversazioni salvate (se esistono)
     var conversazioni = [];
+
+    // CARICA CON CONTROLLO STABILITÀ
     try {
       var datiSalvati = localStorage.getItem(STORAGE_KEY);
       if (datiSalvati) {
@@ -298,21 +333,17 @@
       conversazioni = [];
     }
 
-    // 💾 SALVA le conversazioni nel localStorage
     function salvaConversazioni() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(conversazioni));
       } catch(e) {
         console.error('Errore salvataggio:', e);
-        alert('⚠️ Non riesco a salvare. La memoria potrebbe essere piena!');
+        alert('⚠️ Memoria piena o errore nel salvataggio!');
       }
     }
 
-    // 📖 Mostra subito lo storico all'apertura dell'app
     window.addEventListener('DOMContentLoaded', function() {
-      if (conversazioni.length > 0) {
-        aggiornaStorico();
-      }
+      aggiornaStorico();
     });
 
     function toggleMicrofono() {
@@ -322,7 +353,7 @@
 
     function avviaMicrofono() {
       var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { alert("Browser non supportato. Prova Chrome!"); return; }
+      if (!SR) { alert("Browser non supportato!"); return; }
       riconoscimento = new SR();
       riconoscimento.lang = 'it-IT';
       riconoscimento.continuous = true;
@@ -341,10 +372,6 @@
         }
         document.getElementById('testo').value = testoFinale + t;
       };
-      riconoscimento.onerror = function(event) {
-        if (event.error === 'not-allowed') alert("Permetti l'accesso al microfono!");
-        fermaMicrofono();
-      };
       riconoscimento.onend = function() { fermaMicrofono(); };
       riconoscimento.start();
     }
@@ -357,69 +384,62 @@
     }
 
     function selezionaEmozione(el, emozione) {
-      document.querySelectorAll('.emo-btn').forEach(function(b) {
-        b.classList.remove('selected');
-        b.classList.remove('auto-detected');
-      });
+      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected', 'auto-detected'));
       document.getElementById('autoDetectMsg').classList.remove('visible');
       el.classList.add('selected');
       emozioneSelezionata = emozione;
     }
 
     function evidenziaEmozioneAuto(emozione) {
-      document.querySelectorAll('.emo-btn').forEach(function(b) {
-        b.classList.remove('selected');
-        b.classList.remove('auto-detected');
-      });
+      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected', 'auto-detected'));
       var trovato = false;
-      document.querySelectorAll('.emo-btn').forEach(function(b) {
+      document.querySelectorAll('.emo-btn').forEach(b => {
         if (b.getAttribute('data-emozione') === emozione) {
           b.classList.add('auto-detected');
           trovato = true;
         }
       });
       var msg = document.getElementById('autoDetectMsg');
-      msg.textContent = trovato ? '✨ Ho capito che ti senti: ' + emozione + '!' : '✨ Mi sembra che ti senta: ' + emozione;
+      msg.textContent = trovato ? '✨ Ti senti: ' + emozione + '!' : '✨ Mi sembra: ' + emozione;
       msg.classList.add('visible');
     }
 
     async function invia() {
       if (staRegistrando) fermaMicrofono();
       var testo = document.getElementById('testo').value.trim();
-      if (!testo) { alert('Scrivi o registra qualcosa!'); return; }
+      if (!testo) { alert('Scrivi qualcosa!'); return; }
 
       var btn = document.getElementById('btnInvia');
       btn.disabled = true;
-      btn.textContent = !emozioneSelezionata ? '🧠 Capisco come ti senti...' : 'Sto pensando... 💭';
-      document.getElementById('rispostaBox').style.display = 'none';
-      document.getElementById('autoDetectMsg').classList.remove('visible');
+      btn.textContent = 'Sto pensando... 💭';
 
       try {
         var r = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messaggio: testo,
-            emozione: emozioneSelezionata
-          })
+          body: JSON.stringify({ messaggio: testo, emozione: emozioneSelezionata })
         });
 
         var data = await r.json();
         var risposta = data.risposta || '💜 Sono qui per te. 🤗';
 
-        if (!emozioneSelezionata) {
-          var emozioni = ['felice', 'triste', 'arrabbiato', 'ansioso', 'amato', 'così così'];
-          for (var i = 0; i < emozioni.length; i++) {
-            if (risposta.toLowerCase().indexOf(emozioni[i]) !== -1) {
-              evidenziaEmozioneAuto(emozioni[i]);
-              break;
+        // FILTRO ANTI-ERRORE (Evita di salvare i 503)
+        if (risposta.includes("503") || risposta.includes("UNAVAILABLE") || risposta.includes("high demand")) {
+            alert("Il server è un po' stanco al momento. Riprova tra un istante! 💜");
+        } else {
+            if (!emozioneSelezionata) {
+                var emozioni = ['felice', 'triste', 'arrabbiato', 'ansioso', 'amato', 'così così'];
+                for (var emo of emozioni) {
+                    if (risposta.toLowerCase().includes(emo)) {
+                        evidenziaEmozioneAuto(emo);
+                        break;
+                    }
+                }
             }
-          }
+            mostraRisposta(emozioneSelezionata || 'così così', testo, risposta);
         }
-
-        mostraRisposta(emozioneSelezionata || 'così così', testo, risposta);
       } catch(e) {
-        mostraRisposta(emozioneSelezionata || 'così così', testo, '💜 Sono qui per te. 🤗');
+        alert("Errore di connessione. Riprova! 💜");
       }
 
       btn.disabled = false;
@@ -427,7 +447,6 @@
     }
 
     function mostraRisposta(emozione, testo, risposta) {
-      // 💾 Aggiungi la nuova conversazione CON data e ora
       conversazioni.push({
         emozione: emozione,
         testo: testo,
@@ -435,62 +454,56 @@
         data: new Date().toISOString()
       });
 
-      // 💾 SALVA SUBITO nel localStorage!
       salvaConversazioni();
-
       aggiornaStorico();
 
       document.getElementById('rispostaTesto').textContent = risposta;
       document.getElementById('rispostaBox').style.display = 'block';
       document.getElementById('testo').value = '';
-      document.querySelectorAll('.emo-btn').forEach(function(b) {
-        b.classList.remove('selected');
-      });
+      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected'));
       emozioneSelezionata = '';
       document.getElementById('rispostaBox').scrollIntoView({ behavior: 'smooth' });
     }
 
-    function formattaData(isoString) {
-      if (!isoString) return '';
-      try {
-        var d = new Date(isoString);
-        var oggi = new Date();
-        var ieri = new Date();
-        ieri.setDate(ieri.getDate() - 1);
-
-        var ore = String(d.getHours()).padStart(2, '0');
-        var minuti = String(d.getMinutes()).padStart(2, '0');
-        var orario = ore + ':' + minuti;
-
-        if (d.toDateString() === oggi.toDateString()) {
-          return '🕐 Oggi alle ' + orario;
-        } else if (d.toDateString() === ieri.toDateString()) {
-          return '🕐 Ieri alle ' + orario;
-        } else {
-          var giorno = String(d.getDate()).padStart(2, '0');
-          var mese = String(d.getMonth() + 1).padStart(2, '0');
-          return '📅 ' + giorno + '/' + mese + ' alle ' + orario;
-        }
-      } catch(e) {
-        return '';
-      }
+    function resetFiltri() {
+        document.getElementById('cercaTesto').value = '';
+        document.getElementById('cercaData').value = '';
+        aggiornaStorico();
     }
 
     function aggiornaStorico() {
       var lista = document.getElementById('storicoLista');
+      var query = document.getElementById('cercaTesto').value.toLowerCase();
+      var dataFiltro = document.getElementById('cercaData').value; // Formato YYYY-MM-DD
+      
       lista.innerHTML = '';
+      
       if (conversazioni.length > 0) {
         document.getElementById('storicoBox').style.display = 'block';
-        // Mostra le più recenti in alto
-        var ordinate = conversazioni.slice().reverse();
-        ordinate.forEach(function(c) {
+        
+        var filtrate = conversazioni.filter(c => {
+            var matchTesto = c.testo.toLowerCase().includes(query) || c.risposta.toLowerCase().includes(query);
+            var matchData = true;
+            if (dataFiltro) {
+                var dataISO = c.data.split('T')[0]; // Prende solo YYYY-MM-DD
+                matchData = (dataISO === dataFiltro);
+            }
+            return matchTesto && matchData;
+        });
+
+        if (filtrate.length === 0) {
+            lista.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">Nessun risultato trovato 🔍</div>';
+            return;
+        }
+
+        filtrate.slice().reverse().forEach(function(c) {
           var item = document.createElement('div');
           item.className = 'storico-item';
-          var dataHTML = c.data ? '<div class="data-msg">' + formattaData(c.data) + '</div>' : '';
-          item.innerHTML =
-            dataHTML +
-            '<div class="user-msg">Tu (' + c.emozione + '): ' + c.testo + '</div>' +
-            '<div class="amico-msg">💜 ' + c.risposta + '</div>';
+          item.innerHTML = `
+            <div class="data-msg">${formattaData(c.data)}</div>
+            <div class="user-msg">Tu (${c.emozione}): ${c.testo}</div>
+            <div class="amico-msg">💜 ${c.risposta}</div>
+          `;
           lista.appendChild(item);
         });
       } else {
@@ -498,26 +511,30 @@
       }
     }
 
-    // 🗑️ CANCELLA tutto lo storico
+    function formattaData(isoString) {
+      if (!isoString) return '';
+      var d = new Date(isoString);
+      var oggi = new Date();
+      var ieri = new Date();
+      ieri.setDate(ieri.getDate() - 1);
+      var orario = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+
+      if (d.toDateString() === oggi.toDateString()) return '🕐 Oggi alle ' + orario;
+      if (d.toDateString() === ieri.toDateString()) return '🕐 Ieri alle ' + orario;
+      return '📅 ' + d.toLocaleDateString('it-IT') + ' alle ' + orario;
+    }
+
     function cancellaStorico() {
-      if (conversazioni.length === 0) {
-        alert('Non ci sono conversazioni da cancellare! 💜');
-        return;
-      }
-      if (confirm('Sei sicura di voler cancellare TUTTE le conversazioni? 💜\n\nQuesta azione non si può annullare!')) {
+      if (confirm('Vuoi cancellare tutto?')) {
         conversazioni = [];
         localStorage.removeItem(STORAGE_KEY);
-        document.getElementById('storicoLista').innerHTML = '';
-        document.getElementById('storicoBox').style.display = 'none';
-        alert('✨ Storico cancellato! Pronta per un nuovo inizio 💜');
+        aggiornaStorico();
       }
     }
   </script>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
   </script>
 </body>
 </html>
