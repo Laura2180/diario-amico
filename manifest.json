@@ -8,6 +8,7 @@
   "theme_color": "#7c3aed",
   "orientation": "portrait",
   "version": "1.1.0",
+  "id": "io.github.laura2180.twa",
   "icons": [
     {
       "src": "icon-192.png",
