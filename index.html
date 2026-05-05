@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="manifest" href="/diario-amico/manifest.json">
   <meta name="theme-color" content="#7c3aed">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diario Amico</title>
 
   <style>
@@ -134,8 +131,8 @@
     }
 
     .search-input {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 10px;
       padding: 8px 12px;
       color: white;
@@ -179,38 +176,23 @@
     }
 
     @media print {
-      body {
-        background: white !important;
-        color: black !important;
-      }
-
-      .card,
-      .search-container,
-      .btn-azione,
-      .btn-elimina-singolo,
-      .risposta-box,
-      .btn-invia,
-      .img-upload-container {
+      body { background: white !important; color: black !important; }
+      .card, .search-container, .btn-azione, .btn-elimina-singolo, .risposta-box, .btn-invia, .img-upload-container {
         display: none !important;
       }
-
       .storico-box {
         display: block !important;
         border: none !important;
         background: none !important;
         width: 100% !important;
       }
-
       .storico-item {
         background: none !important;
         border-bottom: 1px solid #ddd !important;
         color: black !important;
         page-break-inside: avoid;
       }
-
-      .msg-img {
-        max-width: 200px !important;
-      }
+      .msg-img { max-width: 200px !important; }
     }
   </style>
 </head>
@@ -280,7 +262,7 @@
         document.getElementById('previewImg').src = imgBase64;
         document.getElementById('previewImg').style.display = 'block';
         document.getElementById('removeImg').style.display = 'inline';
-      };
+      }
 
       if (file) {
         reader.readAsDataURL(file);
@@ -295,10 +277,7 @@
     }
 
     function selezionaEmozione(el, emo) {
-      document.querySelectorAll('.emo-btn').forEach(function(b) {
-        b.classList.remove('selected');
-      });
-
+      document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected'));
       el.classList.add('selected');
       emozioneSelezionata = emo;
     }
@@ -322,10 +301,7 @@
     async function invia() {
       var t = document.getElementById('testo').value.trim();
 
-      if (!t && !imgBase64) {
-        alert("Scrivi qualcosa o aggiungi una foto! 💜");
-        return;
-      }
+      if (!t && !imgBase64) return alert("Scrivi qualcosa o aggiungi una foto! 💜");
 
       document.getElementById('btnInvia').textContent = "💭 Salvataggio...";
 
@@ -355,7 +331,6 @@
           document.getElementById('rispostaTesto').textContent = risp;
           document.getElementById('rispostaBox').style.display = 'block';
           document.getElementById('testo').value = '';
-
           clearImg();
         } else {
           alert("Server occupato, ma il tuo pensiero è salvo. Riprova tra poco! 💜");
@@ -378,18 +353,14 @@
       if (conversazioni.length > 0) {
         document.getElementById('storicoBox').style.display = 'block';
 
-        conversazioni
-          .map(function(c, i) {
-            c.id = i;
-            return c;
-          })
-          .filter(function(c) {
+        conversazioni.map((c, i) => ({ ...c, id: i }))
+          .filter(c => {
             var mText = c.testo.toLowerCase().includes(q) || c.risposta.toLowerCase().includes(q);
             var mDate = dF ? c.data.startsWith(dF) : true;
             return mText && mDate;
           })
           .reverse()
-          .forEach(function(c) {
+          .forEach(c => {
             var div = document.createElement('div');
             div.className = 'storico-item';
 
@@ -400,14 +371,13 @@
               minute: '2-digit'
             });
 
-            var imgHtml = c.immagine ? '<img src="' + c.immagine + '" class="msg-img">' : '';
+            var imgHtml = c.immagine ? `<img src="${c.immagine}" class="msg-img">` : '';
 
-            div.innerHTML =
-              '<button class="btn-elimina-singolo" onclick="eliminaMessaggio(' + c.id + ')">✕</button>' +
-              '<div style="font-size:10px; opacity:0.5">' + dt + '</div>' +
-              imgHtml +
-              '<div><b>Tu:</b> ' + c.testo + '</div>' +
-              '<div><b>Amico:</b> ' + c.risposta + '</div>';
+            div.innerHTML = `<button class="btn-elimina-singolo" onclick="eliminaMessaggio(${c.id})">✕</button>
+                             <div style="font-size:10px; opacity:0.5">${dt}</div>
+                             ${imgHtml}
+                             <div><b>Tu:</b> ${c.testo}</div>
+                             <div class="amico-msg"><b>Amico:</b> ${c.risposta}</div>`;
 
             lista.appendChild(div);
           });
